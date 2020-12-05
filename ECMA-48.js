@@ -1,5 +1,5 @@
 exports.bytes["C0"] = {
-    "subfilters",
+    "filter-modifiers",
     "functions" : {
       "00/00" : "NUL",
       "00/01" : "SOH",
@@ -36,7 +36,7 @@ exports.bytes["C0"] = {
     }
   }
 exports.bytes["C1"] = {
-    "subfilters" : [
+    "filter-modifiers" : [
       { //7-bit (ECMA-6)
         "^" : "01/11 ", //ESC
         "xx" : "04",
@@ -85,7 +85,7 @@ exports.bytes["C1"] = {
   }
 exports.sequences["Control sequences"] = {
     "function-identifier-location" : "^"
-    "subfilter-masters" : {
+    "filter-modifier-masters" : {
       "parameter byte" : {
         "range" : {
           "entire" : [ "03/00", "03/15" ],
@@ -100,7 +100,7 @@ exports.sequences["Control sequences"] = {
         }
       }
     }
-    "subfilters" : [
+    "filter-modifiers" : [
       { //7-bit (ECMA-6)
         "CSI" : "01/11 05/11", //ESC [
         "Pn" : {
@@ -129,7 +129,7 @@ exports.sequences["Control sequences"] = {
         }
       },
       { //8-bit (ECMA-43)
-        "CSI" : "09/11", //CSI
+        "CSI" : "09/11",
         "Pn" : {
           "master" : "parameter byte",
           "name" : "singular numeric parameter",
@@ -147,7 +147,7 @@ exports.sequences["Control sequences"] = {
           "name" : "singular selective parameter",
           "remove" : "range.subranges.delimeters"
         },
-        "Ps(?<param>\\d)" : {
+        "(?:Ps(?<param>\\d);? )+(?:\\.\\.\\.)?" : { //NOTE: due to how named capture groups work, the match requires iteration
           "master" : "parameter byte",
           "name" : "selective parameter",
           "regex" : {
@@ -157,145 +157,144 @@ exports.sequences["Control sequences"] = {
       }
     ],
     "functions" : {
-      "__by_F_byte" : {
-        "no I byte" : {
-          "04/00" : "ICH",
-          "04/01" : "CUU",
-          "04/02" : "CUD",
-          "04/03" : "CUF",
-          "04/04" : "CUB",
-          "04/05" : "CNL",
-          "04/06" : "CPL",
-          "04/07" : "CHA",
-          "04/08" : "CUP",
-          "04/09" : "CHT",
-          "04/10" : "ED",
-          "04/11" : "EL",
-          "04/12" : "IL",
-          "04/13" : "DL",
-          "04/14" : "EF",
-          "04/15" : "EA",
-          "05/00" : "DCH",
-          "05/01" : "SSE",
-          "05/02" : "CPR",
-          "05/03" : "SU",
-          "05/04" : "SD",
-          "05/05" : "NP",
-          "05/06" : "PP",
-          "05/07" : "CTC",
-          "05/08" : "ECH",
-          "05/09" : "CVT",
-          "05/10" : "CBT",
-          "05/11" : "SRS",
-          "05/12" : "PTX",
-          "05/13" : "SDS",
-          "05/14" : "SIMD",
-          "05/15",
-          "06/00" : "HPA",
-          "06/01" : "HPR",
-          "06/02" : "REP",
-          "06/03" : "DA",
-          "06/04" : "VPA",
-          "06/05" : "VPR",
-          "06/06" : "HVP",
-          "06/07" : "TBC",
-          "06/08" : "SM",
-          "06/09" : "MC",
-          "06/10" : "HPB",
-          "06/11" : "VPB",
-          "06/12" : "RM",
-          "06/13" : "SGR",
-          "06/14" : "DSR",
-          "06/15" : "DAQ",
-          "07/00",
-          "07/01",
-          "07/02",
-          "07/03",
-          "07/04",
-          "07/05",
-          "07/06",
-          "07/07",
-          "07/08",
-          "07/09",
-          "07/10",
-          "07/11",
-          "07/12",
-          "07/13",
-          "07/14",
-          "07/15"
+      "these functions are identified by the final byte" : { //intermediate and final bytes make up the identifier for the control function. most functions only have a single f byte for the identifier
+        "no intermediate byte" : {
+          "CSI Pn 04/00" : "ICH",
+          "CSI Pn 04/01" : "CUU",
+          "CSI Pn 04/02" : "CUD",
+          "CSI Pn 04/03" : "CUF",
+          "CSI Pn 04/04" : "CUB",
+          "CSI Pn 04/05" : "CNL",
+          "CSI Pn 04/06" : "CPL",
+          "CSI Pn 04/07" : "CHA",
+          "CSI Pn1; Pn2 04/08" : "CUP",
+          "CSI Pn 04/09" : "CHT",
+          "CSI Ps 04/10" : "ED",
+          "CSI Ps 04/11" : "EL",
+          "CSI Pn 04/12" : "IL",
+          "CSI Pn 04/13" : "DL",
+          "CSI Ps 04/14" : "EF",
+          "CSI Ps 04/15" : "EA",
+          "CSI Pn 05/00" : "DCH",
+          "CSI Ps 05/01" : "SEE",
+          "CSI Pn1; Pn2 05/02" : "CPR",
+          "CSI Pn 05/03" : "SU",
+          "CSI Pn 05/04" : "SD",
+          "CSI Pn 05/05" : "NP",
+          "CSI Pn 05/06" : "PP",
+          "CSI Ps ... 05/07" : "CTC",
+          "CSI Pn 05/08" : "ECH",
+          "CSI Pn 05/09" : "CVT",
+          "CSI Pn 05/10" : "CBT",
+          "CSI Ps 05/11" : "SRS",
+          "CSI Ps 05/12" : "PTX",
+          "CSI Ps 05/13" : "SDS",
+          "CSI Ps 05/14" : "SIMD",
+          // "05/15",
+          "CSI Pn 06/00" : "HPA",
+          "CSI Pn 06/01" : "HPR",
+          "CSI Pn 06/02" : "REP",
+          "CSI Ps 06/03" : "DA",
+          "CSI Pn 06/04" : "VPA",
+          "CSI Pn 06/05" : "VPR",
+          "CSI Pn1; Pn2 06/06" : "HVP",
+          "CSI Ps 06/07" : "TBC",
+          "CSI Ps ... 06/08" : "SM",
+          "CSI Ps 06/09" : "MC",
+          "CSI Pn 06/10" : "HPB",
+          "CSI Pn 06/11" : "VPB",
+          "CSI Ps ... 06/12" : "RM",
+          "CSI Ps ... 06/13" : "SGR",
+          "CSI Ps 06/14" : "DSR",
+          "CSI Ps ... 06/15" : "DAQ",
+          // "07/00",
+          // "07/01",
+          // "07/02",
+          // "07/03",
+          // "07/04",
+          // "07/05",
+          // "07/06",
+          // "07/07",
+          // "07/08",
+          // "07/09",
+          // "07/10",
+          // "07/11",
+          // "07/12",
+          // "07/13",
+          // "07/14",
+          // "07/15"
         },
-        "single 02/00 I byte" : { //the "space" character
-          "04/00" : "SL",
-          "04/01" : "SR",
-          "04/02" : "GSM",
-          "04/03" : "GSS",
-          "04/04" : "FNT",
-          "04/05" : "TSS",
-          "04/06" : "JFY",
-          "04/07" : "SPI",
-          "04/08" : "QUAD",
-          "04/09" : "SSU",
-          "04/10" : "PFS",
-          "04/11" : "SHS",
-          "04/12" : "SVS",
-          "04/13" : "IGS",
-          "04/14",
-          "04/15" : "IDCS",
-          "05/00" : "PPA",
-          "05/01" : "PPR",
-          "05/02" : "PPB",
-          "05/03" : "SPD",
-          "05/04" : "DTA",
-          "05/05" : "SHL",
-          "05/06" : "SLL",
-          "05/07" : "FNK",
-          "05/08" : "SPQR",
-          "05/09" : "SEF",
-          "05/10" : "PEC",
-          "05/11" : "SSW",
-          "05/12" : "SACS",
-          "05/13" : "SAPV",
-          "05/14" : "STAB",
-          "05/15" : "GCC",
-          "06/00" : "TATE",
-          "06/01" : "TALE",
-          "06/02" : "TAC",
-          "06/03" : "TSR",
-          "06/04" : "SCO",
-          "06/05" : "SRCS",
-          "06/06" : "SCS",
-          "06/07" : "SLS",
-          "06/08",
-          "06/09",
-          "06/10" : "SCP",
-          "06/11",
-          "06/12",
-          "06/13",
-          "06/14",
-          "06/15",
-          "07/00",
-          "07/01",
-          "07/02",
-          "07/03",
-          "07/04",
-          "07/05",
-          "07/06",
-          "07/07",
-          "07/08",
-          "07/09",
-          "07/10",
-          "07/11",
-          "07/12",
-          "07/13",
-          "07/14",
-          "07/15"
+        "single 02/00 intermediate byte" : { //the "space" character
+          "CSI Pn 02/00 04/00" : "SL",
+          "CSI Pn 02/00 04/01" : "SR",
+          "CSI Pn1; Pn2 02/00 04/02" : "GSM",
+          "CSI Pn 02/00 04/03" : "GSS",
+          "CSI Ps1; Ps2 02/00 04/04" : "FNT",
+          "CSI Pn 02/00 04/05" : "TSS",
+          "CSI Ps ... 02/00 04/06" : "JFY",
+          "CSI Pn1; Pn2 02/00 04/07" : "SPI",
+          "CSI Ps ... 02/00 04/08" : "QUAD",
+          "CSI Ps 02/00 04/09" : "SSU",
+          "CSI Ps 02/00 04/10" : "PFS",
+          "CSI Ps 02/00 04/11" : "SHS",
+          "CSI Ps 02/00 04/12" : "SVS",
+          "CSI Ps 02/00 04/13" : "IGS",
+          // "02/00 04/14",
+          "CSI Ps 02/00 04/15" : "IDCS",
+          "CSI Pn 02/00 05/00" : "PPA",
+          "CSI Pn 02/00 05/01" : "PPR",
+          "CSI Pn 02/00 05/02" : "PPB",
+          "CSI Ps1; Ps2 02/00 05/03" : "SPD",
+          "CSI Pn1; Pn2 02/00 05/04" : "DTA",
+          "CSI Pn 02/00 05/05" : "SLH",
+          "CSI Pn 02/00 05/06" : "SLL",
+          "CSI Pn 02/00 05/07" : "FNK",
+          "CSI Ps 02/00 05/08" : "SPQR",
+          "CSI Ps1; Ps2 02/00 05/09" : "SEF",
+          "CSI Ps 02/00 05/10" : "PEC",
+          "CSI Pn 02/00 05/11" : "SSW",
+          "CSI Pn 02/00 05/12" : "SACS",
+          "CSI Ps... 02/00 05/13" : "SAPV",
+          "CSI Ps 02/00 05/14" : "STAB",
+          "CSI Ps 02/00 05/15" : "GCC",
+          "CSI Pn 02/00 06/00" : "TATE",
+          "CSI Pn 02/00 06/01" : "TALE",
+          "CSI Pn 02/00 06/02" : "TAC",
+          "CSI Pn1; Pn2 02/00 06/03" : "TCC",
+          "CSI Pn 02/00 06/04" : "TSR",
+          "CSI Ps 02/00 06/05" : "SCO",
+          "CSI Pn 02/00 06/06" : "SRCS",
+          "CSI Pn 02/00 06/07" : "SCS",
+          "CSI Pn 02/00 06/08" : "SLS",
+          "CSI Pn 02/00 06/09" : "SPH",
+          "CSI Pn 02/00 06/10" : "SPL",
+          "CSI Pn 02/00 06/11" : "SCP",
+          // "02/00 06/12",
+          // "02/00 06/13",
+          // "02/00 06/14",
+          // "02/00 06/15",
+          // "02/00 07/00",
+          // "02/00 07/01",
+          // "02/00 07/02",
+          // "02/00 07/03",
+          // "02/00 07/04",
+          // "02/00 07/05",
+          // "02/00 07/06",
+          // "02/00 07/07",
+          // "02/00 07/08",
+          // "02/00 07/09",
+          // "02/00 07/10",
+          // "02/00 07/11",
+          // "02/00 07/12",
+          // "02/00 07/13",
+          // "02/00 07/14",
+          // "02/00 07/15"
         }
-      },
-      ""
+      }
     }
   }
 exports.sequences["Independent control functions"] = {
-    "subfilters" : {
+    "filter-modifiers" : {
         "^" : "01/11 " //ESC
       },
     "functions" : {
@@ -334,7 +333,7 @@ exports.sequences["Independent control functions"] = {
     }
   }
 exports.sequences["Control strings"] = {
-  "subfilters" : [
+  "filter-modifiers" : [
     { //7-bit (ECMA-6)
       "DCS" : "01/11 05/00",
       "SOS" : "01/11 05/08",
