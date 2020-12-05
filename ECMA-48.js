@@ -1,5 +1,5 @@
-exports["C0"] = {
-    "format",
+exports.bytes["C0"] = {
+    "subfilters",
     "functions" : {
       "00/00" : "NUL",
       "00/01" : "SOH",
@@ -35,8 +35,8 @@ exports["C0"] = {
       "01/15" : "IS1",
     }
   }
-exports["C1"] = {
-    "format" : [
+exports.bytes["C1"] = {
+    "subfilters" : [
       { //7-bit (ECMA-6)
         "^" : "01/11 ", //ESC
         "xx" : "04",
@@ -83,38 +83,79 @@ exports["C1"] = {
       "XX/15" : "APC",
     }
   }
-exports["Control sequences"] = {
-    "format" : [
+exports.sequences["Control sequences"] = {
+    "function-identifier-location" : "^"
+    "subfilter-masters" : {
+      "parameter byte" : {
+        "range" : {
+          "entire" : [ "03/00", "03/15" ],
+          "subranges" : {
+            "defined" : [ "03/00", "03/09"],
+            "undefined" : [ "03/12", "03/15" ],
+            "delimeters" : {
+              "inter" : "03/11" //; - delimeter between parameters,
+              "inner" : "03/10" //: - subdelimeter
+            }
+          }
+        }
+      }
+    }
+    "subfilters" : [
       { //7-bit (ECMA-6)
         "CSI" : "01/11 05/11", //ESC [
+        "Pn" : {
+          "master" : "parameter byte",
+          "name" : "singular numeric parameter",
+          "remove" : "range.subranges.delimeters"
+        },
+        "Pn(?<param>\\d)" : {
+          "master" : "parameter byte",
+          "name" : "numeric parameter",
+          "regex" : {
+            "param" : "parameter number"
+          }
+        },
+        "Ps" : {
+          "master" : "parameter byte",
+          "name" : "singular selective parameter",
+          "remove" : "range.subranges.delimeters"
+        },
+        "Ps(?<param>\\d)" : {
+          "master" : "parameter byte",
+          "name" : "selective parameter",
+          "regex" : {
+            "param" : "parameter number"
+          }
+        }
       },
       { //8-bit (ECMA-43)
         "CSI" : "09/11", //CSI
+        "Pn" : {
+          "master" : "parameter byte",
+          "name" : "singular numeric parameter",
+          "remove" : "range.subranges.delimeters"
+        },
+        "Pn(?<param>\\d)" : {
+          "master" : "parameter byte",
+          "name" : "numeric parameter",
+          "regex" : {
+            "param" : "parameter number"
+          }
+        },
+        "Ps" : {
+          "master" : "parameter byte",
+          "name" : "singular selective parameter",
+          "remove" : "range.subranges.delimeters"
+        },
+        "Ps(?<param>\\d)" : {
+          "master" : "parameter byte",
+          "name" : "selective parameter",
+          "regex" : {
+            "param" : "parameter number"
+          }
+        }
       }
     ],
-    "functional_format" : {
-      "format" : "CSI P ... P ... I ... I F",
-      "where" : [
-        "P" : {
-          "name" : "parameter byte",
-          "range" : [ "03/00", "03/15" ],
-          "standard format" : { //first byte of string in range 03/00-03/11
-            "parameter" : [ "03/00", "03/09" ], //digits 0-9
-            "subdelimeter" : "03/10", //:
-            "delimeter" : "03/11" //;
-          },
-          "private format" //first byte of string in range 03/12-03/15
-        },
-        "I" : {
-          "name" : "intermediate byte",
-          "range" : [ "02/00", "02/15" ]
-        },
-        "F" : {
-          "name" : "final byte",
-          "range" : [ "04/00", "07/15" ]
-        }
-      ]
-    },
     "functions" : {
       "__by_F_byte" : {
         "no I byte" : {
@@ -253,8 +294,8 @@ exports["Control sequences"] = {
       ""
     }
   }
-exports["Independent control functions"] = {
-    "format" : {
+exports.sequences["Independent control functions"] = {
+    "subfilters" : {
         "^" : "01/11 " //ESC
       },
     "functions" : {
@@ -292,8 +333,8 @@ exports["Independent control functions"] = {
       "07/15",
     }
   }
-exports["Control strings"] = {
-  "format" : [
+exports.sequences["Control strings"] = {
+  "subfilters" : [
     { //7-bit (ECMA-6)
       "DCS" : "01/11 05/00",
       "SOS" : "01/11 05/08",
