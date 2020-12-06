@@ -67,3 +67,11 @@ this `object` has a few properties:
 - - - - inner - contains range of bytes used as delimeter to be placed between this occurence of the regex-key in the `_filter string_` and the next occurence in the same string
 - remove - contains a singular string or array of strings with a property to remove from the master written in javascript format (`Tree.Branch.Apple`)
 - regex - used for labeling/handling named capture groups captured by the regex-key; contains object with keys that contain capture group names and values for labeling/handling the capture group
+
+"masters"/prototypes:
+
+```
+"filter-modifier-masters" : {
+  "name of master/proto" : { ...(filter-modifier)... }
+}
+```
