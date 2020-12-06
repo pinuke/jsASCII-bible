@@ -108,7 +108,7 @@ exports = {
           "Pn" : {
             "master" : "parameter byte",
             "name" : "singular numeric parameter",
-            "remove" : "range.subranges.delimeters"
+            "remove" : "range.subranges.delimeters.inter"
           },
           "Pn(?<param>\\d)" : {
             "master" : "parameter byte",
@@ -120,7 +120,7 @@ exports = {
           "Ps" : {
             "master" : "parameter byte",
             "name" : "singular selective parameter",
-            "remove" : "range.subranges.delimeters"
+            "remove" : "range.subranges.delimeters.inter"
           },
           "Ps(?<param>\\d)" : {
             "master" : "parameter byte",
